@@ -37,7 +37,7 @@ If you use `deep_diffusion` in your research, you can cite it as follows:
 
 ## References
 
-1. *keras-rl*, Plappert, 2016 [[GitHub]](github.com/keras-rl/keras-rl)
-2. [*OpenAI Gym*](arxiv.org/abs/1606.01540), Brockman et al., 2016 [[GitHub]](github.com/openai/gym)
+1. *keras-rl*, Plappert, 2016 [[GitHub]](https://github.com/keras-rl/keras-rl)
+2. [*OpenAI Gym*](arxiv.org/abs/1606.01540), Brockman et al., 2016 [[GitHub]](https://github.com/openai/gym)
 3. [*Playing Atari with Deep Reinforcement Learning*](https://arxiv.org/abs/1312.5602), Mnih et al., 2013
 4. [*Human-level control through deep reinforcement learning*](https://www.nature.com/articles/nature14236), Mnih et al., 2015
