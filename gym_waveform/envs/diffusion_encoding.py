@@ -40,14 +40,24 @@ class DiffusionEncodingEnv(gym.Env):
         self.nG = int(round(2*self.Gmax/self.dG+1)) # Number of gradient amplitude steps
         self.n = int(round(self.tEnc/self.dt))      # Number of encoding timesteps
 
+        # self.action_space = spaces.Tuple(
+        #                             [gym.spaces.Discrete(3)] +
+        #                             [gym.spaces.Discrete(3)] * self.n,
+        #                             (self.n+1,)
+        #                     )
+        # self.observation_space = spaces.Tuple(
+        #                             [gym.spaces.Discrete(self.n)] +
+        #                             [gym.spaces.Discrete(self.nG)] * self.n,
+        #                             (self.n+1,)
+        #                          )
+
         self.action_space = spaces.Tuple(
-                                    [gym.spaces.Discrete(3)] +
-                                    [gym.spaces.Discrete(3)] * self.n,
-                                    (self.n+1,)
+                                np.full(self.n+1, gym.spaces.Discrete(3), dtype=np.object),
+                                (self.n+1,)
                             )
         self.observation_space = spaces.Tuple(
-                                    [gym.spaces.Discrete(self.n)] +
-                                    [gym.spaces.Discrete(self.nG)] * self.n,
+                                    np.r_[np.full((1,),gym.spaces.Discrete(self.n)),
+                                    np.full(self.n, gym.spaces.Discrete(self.nG), dtype=np.object)],
                                     (self.n+1,)
                                  )
 
@@ -72,9 +82,8 @@ class DiffusionEncodingEnv(gym.Env):
             observation (object): The initial observation of the space. Initial reward is assumed to be 0.
         """
         self.step_count = 0
-        self.nInv = int(round(self.n/2))
-        self.G = np.zeros(self.n)
-        self.state = [self.nInv] + [0] * self.n
+        nInv = int(round(self.n/2))
+        self.state = np.array([nInv] + [0]*self.n, dtype=np.int)
         return self.state
 
 
@@ -91,24 +100,26 @@ class DiffusionEncodingEnv(gym.Env):
             done (boolean): Whether the episode has ended, in which case further step() calls will return undefined results.
             info (dict): Contains auxiliary diagnostic information (helpful for debugging, and sometimes learning).
         """
-        assert self.action_space.contains(action)
+        assert self.action_space.contains(action+1)
 
-        stepInv = action[0]
-        self.nInv = self.nInv + stepInv
-        stepG = action[1:]
-        self.G = self.G + np.array(stepG) * self.dG
+        nInv = self.state[0]
+        nInv += action[0]
+        self.state[0] = nInv
 
-        self.state = [self.state[0] + stepInv] +
-                     list(map(int,self.state[1:]))
+        G = self.state[1:]
+        G += np.array(action[1:])
+        self.state[1:] = G
 
-        if any(self.G > self.Gmax):
+        G = G * self.dG # Convert from discrete units to [T/m]
+
+        if any(G > self.Gmax):
             done = 1
-        elif (self.nInv < 0) or (self.nInv > self.n):
+        elif (nInv < 0) or (nInv > self.n):
             done = 1
         else:
             done = 0
 
-        reward = sum(self.G)
+        reward = sum(G / self.dG)
         self.step_count += 1
 
         return self.state, reward, done, {"Steps": self.step_count}

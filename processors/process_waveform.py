@@ -27,7 +27,7 @@ class Waveform(Processor):
             Processed action given to the environment
         """
 
-        action_list = [0] * (self.time_steps + 1)
-        action_list[action // 3] = action % 3 - 1
-
-        return action_list
+        action_array = np.zeros(self.time_steps + 1, dtype=int)
+        action_array[action // 3] = action % 3 - 1
+        
+        return action_array

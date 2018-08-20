@@ -29,7 +29,7 @@ class Tuple(gym.spaces.Tuple):
             elif isinstance(s, gym.spaces.Box):
                 sizes += (np.inf,)
             elif isinstance(s, np.ndarray):
-                sizes += s.shape + (spaces.Tuples((s[0],)).size(),)
+                sizes += s.shape + (spaces.Tuple((s[0],)).size(),)
         return sizes
 
 
@@ -37,7 +37,7 @@ class Tuple(gym.spaces.Tuple):
         """ Uniformly randomly sample a random element of this space """
         samples = tuple()
         for s in self.spaces:
-            if isinstance(s, space.Tuple):
+            if isinstance(s, spaces.Tuple):
                 samples += (s.sample(),)
             if isinstance(s, gym.Space):
                 samples += (s.sample(),)
