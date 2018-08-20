@@ -1,5 +1,6 @@
 import numpy as np
 import gym_waveform as gym
+import processors
 
 from keras.models import Sequential
 from keras.layers import Dense, Activation, Flatten
@@ -18,6 +19,8 @@ env = gym.make(ENV_NAME)
 np.random.seed(0)
 env.seed(0)
 nb_actions = env.action_space.n
+time_steps = env.observation_space.size()[0]
+gradient_steps = env.observation_space.size()[1]
 
 # Next, we build a very simple model.
 model = Sequential()
@@ -36,8 +39,9 @@ print(model.summary())
 # even the metrics!
 memory = SequentialMemory(limit=50000, window_length=1)
 policy = BoltzmannQPolicy()
+processor = processors.Waveform(time_steps, gradient_steps)
 dqn = DQNAgent(model=model, nb_actions=nb_actions, memory=memory, nb_steps_warmup=10,
-               target_model_update=1e-2, policy=policy)
+               target_model_update=1e-2, policy=policy, processor=processor)
 dqn.compile(Adam(lr=1e-3), metrics=['mae'])
 
 # Okay, now it's time to learn something! We visualize the training here for show, but this

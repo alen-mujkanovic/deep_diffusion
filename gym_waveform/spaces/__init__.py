@@ -1,1 +1,1 @@
-from gym_waveform.spaces.tuple_space import Tuples
+from gym_waveform.spaces.tuple_space import Tuple

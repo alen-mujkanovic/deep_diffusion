@@ -1,14 +1,34 @@
 import numpy as np
-import gym
-from gym.utils import seeding
 from gym_waveform import spaces
+import gym
+
+from gym.utils import seeding
 
 
 class DiffusionEncodingEnv(gym.Env):
-    """Diffusion Encoding
+    """Environment definition
+    Diffusion encoding description goes here
+
+    # Action space:
+        movInv
+        movG
+
+    # Observation space:
+        nInv
+        G
+
+    # Reward calculation
+        duration
+        motion
+        coco
 
     """
+
+
     def __init__(self):
+        """ Initialize the environment
+        Set invariants and create action/observation spaces.
+        """
         self.dt = 500e-6    # Timestep duration [s]
         self.tEnc = 50e-3   # Encoding duration [s]
         self.Gmax = 150e-3  # Maximum gradient amplitude [T/m]
@@ -20,12 +40,12 @@ class DiffusionEncodingEnv(gym.Env):
         self.nG = int(round(2*self.Gmax/self.dG+1)) # Number of gradient amplitude steps
         self.n = int(round(self.tEnc/self.dt))      # Number of encoding timesteps
 
-        self.action_space = spaces.Tuples(
+        self.action_space = spaces.Tuple(
                                     [gym.spaces.Discrete(3)] +
                                     [gym.spaces.Discrete(3)] * self.n,
                                     (self.n+1,)
                             )
-        self.observation_space = spaces.Tuples(
+        self.observation_space = spaces.Tuple(
                                     [gym.spaces.Discrete(self.n)] +
                                     [gym.spaces.Discrete(self.nG)] * self.n,
                                     (self.n+1,)
@@ -36,51 +56,78 @@ class DiffusionEncodingEnv(gym.Env):
 
 
     def seed(self, seed=None):
+        """Sets the seed for this env's random number generator(s)
+
+        # Returns
+            Returns the list of seeds used in this env's random number generators
+        """
         self.np_random, seed = seeding.np_random(seed)
         return [seed]
 
 
     def reset(self):
-        self.step_count = 0
-        self.nInv = int(round(self.n/2))
-        self.G = [0] * self.n
-        return [self.nInv] + self.G
-
-
-    def forward(self, observation):
-        """Takes the an observation from the environment and returns the action to be taken next.
-        If the policy is implemented by a neural network, this corresponds to a forward (inference) pass.
-
-        # Argument
-            observation (object): The current observation from the environment.
+        """ Resets the state of the environment and returns an initial observation.
 
         # Returns
-            The next action to be executed in the environment.
+            observation (object): The initial observation of the space. Initial reward is assumed to be 0.
         """
-        return action
+        self.step_count = 0
+        self.nInv = int(round(self.n/2))
+        self.G = np.zeros(self.n)
+        self.state = [self.nInv] + [0] * self.n
+        return self.state
 
 
     def step(self, action):
-        print(action)
+        """Run one timestep of the environment's dynamics.
+        Accepts an action and returns a tuple (observation, reward, done, info).
 
-        stepInv = action[0] - 1
-        nInv = self.state[0] + stepInv
-        stepG = (np.array(action[1:]) - 1) * self.dG
-        G = self.state[1:] + stepG
-        self.state = [nInv] + G
+        # Arguments
+            action (object): An action provided by the environment.
 
-        if any(G > self.Gmax):
+        # Returns
+            observation (object): Agent's observation of the current environment.
+            reward (float) : Amount of reward returned after previous action.
+            done (boolean): Whether the episode has ended, in which case further step() calls will return undefined results.
+            info (dict): Contains auxiliary diagnostic information (helpful for debugging, and sometimes learning).
+        """
+        assert self.action_space.contains(action)
+
+        stepInv = action[0]
+        self.nInv = self.nInv + stepInv
+        stepG = action[1:]
+        self.G = self.G + np.array(stepG) * self.dG
+
+        self.state = [self.state[0] + stepInv] +
+                     list(map(int,self.state[1:]))
+
+        if any(self.G > self.Gmax):
             done = 1
-        elif (nInv < 0) or (nInv > self.n):
+        elif (self.nInv < 0) or (self.nInv > self.n):
             done = 1
         else:
             done = 0
 
-        reward = sum(G)
+        reward = sum(self.G)
         self.step_count += 1
 
         return self.state, reward, done, {"Steps": self.step_count}
 
 
-    def render(self, mode='human'):
-        print("G: ", self.state)
+    def render(self, mode='human', close=False):
+        """Renders the environment.
+        The set of supported modes varies per environment. (And some
+        environments do not support rendering at all.)
+
+        # Arguments
+            mode (str): The mode to render with.
+            close (bool): Close all open renderings.
+        """
+        print(" Steps: ", self.step_count, "\n G: ", self.state)
+
+
+    def close(self):
+        """Perform any necessary cleanup.
+        This method is automatically called upon when the program exits.
+        """
+        print("Succesfully terminated!")
