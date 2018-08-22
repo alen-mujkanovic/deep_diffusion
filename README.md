@@ -9,8 +9,8 @@
 Install from Github source:
 
 ```
-git clone https://github.com/keras-rl/keras-rl.git
-cd keras-rl
+git clone https://github.com/alen-mujkanovic/deep_diffusion.git
+cd deep_diffusion
 python setup.py install
 ```
 
