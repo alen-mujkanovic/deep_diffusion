@@ -14,7 +14,7 @@ cd deep_diffusion
 python setup.py install
 ```
 
-## Examples
+## Examples
 
 If you want to run the examples, you'll also have to install:
 - **keras-rl** by Matthias Plappert: `pip install keras-rl`
