@@ -3,7 +3,7 @@
 
 ## What is it?
 
-`deep_diffusion` is a reinforcement learning framework for generating asymmetric diffusion encoding gradient waveforms for high-resolution magnetic resonance diffusion imaging. uses varying deep learning agents to learn the diffusion magnetic resonance imaging parameter space and generate optimized spin echo sequences. This allows multi-objective optimization for finding waveforms allowing high encoding efficiency, low echo time (i.e. high SNR), improving motion sensitivity and concomitant field effects. It is written in Python 3 using the deep learning library [Keras](http://keras.io).
+`deep_diffusion` is a reinforcement learning framework for generating asymmetric diffusion encoding gradient waveforms for high-resolution magnetic resonance diffusion imaging. It uses varying deep learning agents to learn the diffusion magnetic resonance imaging parameter space and generate optimized spin echo sequences. This allows multi-objective optimization for finding waveforms allowing high encoding efficiency, low echo time (i.e. high SNR), improving motion sensitivity and concomitant field effects. It is written in Python 3 using the deep learning library [Keras](http://keras.io).
 
 ## Installation
 Install from Github source:
