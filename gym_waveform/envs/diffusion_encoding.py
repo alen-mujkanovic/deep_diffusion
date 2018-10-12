@@ -134,7 +134,7 @@ class DiffusionEncodingEnv(gym.Env):
             mode (str): The mode to render with.
             close (bool): Close all open renderings.
         """
-        print(" Steps: ", self.step_count, "\n G: ", self.state)
+        print(" Step: ", self.step_count, "\n G: ", self.state)
 
 
     def close(self):
